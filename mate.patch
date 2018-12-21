@@ -1,0 +1,106 @@
+From 8119442293808deb7292ec3f31adcb286d1e47c9 Mon Sep 17 00:00:00 2001
+From: Guido Chari <charig@gmail.com>
+Date: Fri, 21 Dec 2018 15:50:40 +0100
+Subject: [PATCH] Mate requires that some primitives got installed only when
+ reflective VM capabilities are enabled. Also, at this moment is only
+ supported for java>=11
+
+---
+ build.xml                              |  6 ------
+ src/bd/primitives/Primitive.java       |  4 ++++
+ src/bd/primitives/PrimitiveLoader.java | 23 +++++++++++++++--------
+ 3 files changed, 19 insertions(+), 14 deletions(-)
+
+diff --git a/build.xml b/build.xml
+index 4363a82..8e1ae06 100644
+--- a/build.xml
++++ b/build.xml
+@@ -2,9 +2,6 @@
+     xmlns:if="ant:if"
+     xmlns:jacoco="antlib:org.jacoco.ant">
+     
+-    <property name="force.java8" value="false" />  <!-- the default value,
+-       can be changed by simply setting the property when calling ant -->
+-
+     <property name="src.dir"     location="src"/>
+     <property name="src_gen.dir" location="src_gen"/>
+     <property name="test.dir"    value="tests"/>
+@@ -155,17 +152,14 @@
+           <compilerarg line="-s ${src_gen.dir}" />
+           <compilerarg line="-XDignore.symbol.file" />
+           <compilerarg line="-Xlint:all" />
+-          <compilerarg line="--release 8" if:true="${force.java8}" />
+         </javac>
+         <javac includeantruntime="false" srcdir="${src_gen.dir}" destdir="${classes.dir}" debug="true">
+           <classpath refid="project.classpath" />
+           <compilerarg line="-s ${src_gen.dir}" />
+           <compilerarg line="-Xlint:all" />
+-          <compilerarg line="--release 8" if:true="${force.java8}" />
+         </javac>
+         <javac includeantruntime="false" srcdir="${test.dir}" destdir="${classes.dir}" debug="true">
+           <classpath refid="project.classpath" />
+-          <compilerarg line="--release 8" if:true="${force.java8}" />
+         </javac>
+     </target>
+     
+diff --git a/src/bd/primitives/Primitive.java b/src/bd/primitives/Primitive.java
+index d8a8b16..f52ae42 100644
+--- a/src/bd/primitives/Primitive.java
++++ b/src/bd/primitives/Primitive.java
+@@ -28,8 +28,12 @@ public @interface Primitive {
+   String selector() default "";
+ 
+   /** Specialize already during parsing. */
++
+   boolean inParser() default true;
+ 
++  /** If the primitive is only valid for mate and not for som. */
++  boolean mate() default false;
++
+   /**
+    * Expected type of receiver for eager replacement,
+    * if given one of the types needs to match.
+diff --git a/src/bd/primitives/PrimitiveLoader.java b/src/bd/primitives/PrimitiveLoader.java
+index d9ac91d..f2de89a 100644
+--- a/src/bd/primitives/PrimitiveLoader.java
++++ b/src/bd/primitives/PrimitiveLoader.java
+@@ -7,6 +7,7 @@ import java.util.List;
+ import com.oracle.truffle.api.dsl.NodeFactory;
+ 
+ import bd.basic.IdProvider;
++import som.vm.Universe;
+ 
+ 
+ /**
+@@ -68,14 +69,20 @@ public abstract class PrimitiveLoader<Context, ExprT, Id> {
+   protected void initialize() {
+     List<Specializer<Context, ExprT, Id>> specializers = getSpecializers();
+     for (Specializer<Context, ExprT, Id> s : specializers) {
+-      registerPrimitive(s);
+-
+-      String sel = s.getPrimitive().selector();
+-      if (!("".equals(sel))) {
+-        Id selector = ids.getId(sel);
+-        assert !eagerPrimitives.containsKey(
+-            selector) : "clash of selectors and eager specialization";
+-        eagerPrimitives.put(selector, s);
++      if (!s.getPrimitive().mate() || Universe.getCurrent().vmReflectionEnabled()) {
++        registerPrimitive(s);
++
++        String sel = s.getPrimitive().selector();
++        if (!("".equals(sel))) {
++          Id selector = ids.getId(sel);
++          if (eagerPrimitives.containsKey(
++              selector)) {
++            int i = 1;
++          }
++          assert !eagerPrimitives.containsKey(
++              selector) : "clash of selectors and eager specialization";
++          eagerPrimitives.put(selector, s);
++        }
+       }
+     }
+   }
+-- 
+2.17.2 (Apple Git-113)
+
