@@ -15,7 +15,7 @@ import bd.testsetup.StringId;
 public class Primitives extends PrimitiveLoader<LangContext, ExprNode, String> {
   protected Primitives() {
     super(new StringId());
-    initialize();
+    initialize(false);
   }
 
   @Override

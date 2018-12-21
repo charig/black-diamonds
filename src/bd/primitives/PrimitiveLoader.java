@@ -7,7 +7,6 @@ import java.util.List;
 import com.oracle.truffle.api.dsl.NodeFactory;
 
 import bd.basic.IdProvider;
-import som.vm.Universe;
 
 
 /**
@@ -66,19 +65,15 @@ public abstract class PrimitiveLoader<Context, ExprT, Id> {
    * <p>
    * This methods should be called when the constructor completes.
    */
-  protected void initialize() {
+  protected void initialize(final boolean reflectionEnabled) {
     List<Specializer<Context, ExprT, Id>> specializers = getSpecializers();
     for (Specializer<Context, ExprT, Id> s : specializers) {
-      if (!s.getPrimitive().mate() || Universe.getCurrent().vmReflectionEnabled()) {
+      if (!s.getPrimitive().mate() || reflectionEnabled) {
         registerPrimitive(s);
 
         String sel = s.getPrimitive().selector();
         if (!("".equals(sel))) {
           Id selector = ids.getId(sel);
-          if (eagerPrimitives.containsKey(
-              selector)) {
-            int i = 1;
-          }
           assert !eagerPrimitives.containsKey(
               selector) : "clash of selectors and eager specialization";
           eagerPrimitives.put(selector, s);
