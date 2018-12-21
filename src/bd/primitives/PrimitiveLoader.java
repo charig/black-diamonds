@@ -7,6 +7,7 @@ import java.util.List;
 import com.oracle.truffle.api.dsl.NodeFactory;
 
 import bd.basic.IdProvider;
+import som.vm.Universe;
 
 
 /**
@@ -68,14 +69,20 @@ public abstract class PrimitiveLoader<Context, ExprT, Id> {
   protected void initialize() {
     List<Specializer<Context, ExprT, Id>> specializers = getSpecializers();
     for (Specializer<Context, ExprT, Id> s : specializers) {
-      registerPrimitive(s);
+      if (!s.getPrimitive().mate() || Universe.getCurrent().vmReflectionEnabled()) {
+        registerPrimitive(s);
 
-      String sel = s.getPrimitive().selector();
-      if (!("".equals(sel))) {
-        Id selector = ids.getId(sel);
-        assert !eagerPrimitives.containsKey(
-            selector) : "clash of selectors and eager specialization";
-        eagerPrimitives.put(selector, s);
+        String sel = s.getPrimitive().selector();
+        if (!("".equals(sel))) {
+          Id selector = ids.getId(sel);
+          if (eagerPrimitives.containsKey(
+              selector)) {
+            int i = 1;
+          }
+          assert !eagerPrimitives.containsKey(
+              selector) : "clash of selectors and eager specialization";
+          eagerPrimitives.put(selector, s);
+        }
       }
     }
   }

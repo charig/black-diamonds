@@ -28,7 +28,11 @@ public @interface Primitive {
   String selector() default "";
 
   /** Specialize already during parsing. */
+
   boolean inParser() default true;
+
+  /** If the primitive is only valid for mate and not for som. */
+  boolean mate() default false;
 
   /**
    * Expected type of receiver for eager replacement,
