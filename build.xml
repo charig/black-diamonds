@@ -9,8 +9,9 @@
     <property name="sdk.dir"     value="graal/sdk" />
     <property name="sdk.build"   value="${sdk.dir}/mxbuild/dists" />
     <property name="truffle.dir" value="graal/truffle" />
-    <property name="truffle.build" value="${truffle.dir}/mxbuild/dists" />
-    <property name="junit.version" value="4.12" />
+	<property name="truffle.build.dsl" location="${truffle.dir}/mxbuild/dists/jdk9" />
+	<property name="truffle.build" location="${truffle.dir}/mxbuild/dists/jdk11" />
+	<property name="junit.version" value="4.12" />
     <property name="jacoco.version" value="0.8.0" />
 
     <property name="checkstyle.version" value="8.11" />
@@ -32,7 +33,7 @@
         <pathelement location="${lib.dir}/junit-${junit.version}.jar" />
         <pathelement location="${lib.dir}/hamcrest-core-1.3.jar" />
         <pathelement location="${truffle.build}/truffle-api.jar" />
-        <pathelement location="${truffle.build}/truffle-dsl-processor.jar" />
+        <pathelement location="${truffle.build.dsl}/truffle-dsl-processor.jar" />
     </path>
 
     <target name="clean" description="Remove build directories and generated code">
