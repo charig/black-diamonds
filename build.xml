@@ -2,16 +2,14 @@
     xmlns:if="ant:if"
     xmlns:jacoco="antlib:org.jacoco.ant">
     
-    <property name="src.dir"     location="src"/>
-    <property name="src_gen.dir" location="src_gen"/>
-    <property name="test.dir"    value="tests"/>
-    <property name="lib.dir"     value="libs"/>
-    <property name="sdk.dir"     value="graal/sdk" />
-    <property name="sdk.build"   value="${sdk.dir}/mxbuild/dists" />
-    <property name="truffle.dir" value="graal/truffle" />
-	<property name="truffle.build.dsl" location="${truffle.dir}/mxbuild/dists/jdk9" />
-	<property name="truffle.build" location="${truffle.dir}/mxbuild/dists/jdk11" />
-	<property name="junit.version" value="4.12" />
+    <property name="src.dir"        location="src"/>
+    <property name="src_gen.dir"    location="src_gen"/>
+    <property name="test.dir"       value="tests"/>
+    <property name="lib.dir"        value="libs"/>
+	<property name="graallib.dir"   location="/Users/guidochari/.local/graalvm-ce-1.0.0-rc16/Contents/Home/jre/lib" />
+    <property name="sdk.dir"        value="${graallib.dir}/boot" />
+    <property name="truffle.dir"    value="${graallib.dir}/truffle/" />
+	<property name="junit.version"  value="4.12" />
     <property name="jacoco.version" value="0.8.0" />
 
     <property name="checkstyle.version" value="8.11" />
@@ -28,12 +26,11 @@
     <path id="project.classpath">
         <pathelement location="${classes.dir}" />
         <pathelement location="${test.dir}" />
-        <pathelement location="${sdk.build}/graal-sdk.jar" />
-        <pathelement location="${sdk.build}/word-api.jar" />
+        <pathelement location="${sdk.dir}/graal-sdk.jar" />
         <pathelement location="${lib.dir}/junit-${junit.version}.jar" />
         <pathelement location="${lib.dir}/hamcrest-core-1.3.jar" />
-        <pathelement location="${truffle.build}/truffle-api.jar" />
-        <pathelement location="${truffle.build.dsl}/truffle-dsl-processor.jar" />
+        <pathelement location="${truffle.dir}/truffle-api.jar" />
+        <pathelement location="${truffle.dir}/truffle-dsl-processor.jar" />
     </path>
 
     <target name="clean" description="Remove build directories and generated code">
@@ -41,15 +38,6 @@
         <delete dir="${src_gen.dir}"/>
     </target>
     
-    <target name="clobber" description="Do clean, and also clean truffle build" depends="clean">
-        <exec executable="${mx.cmd}" dir="${truffle.dir}">
-            <arg value="clean"/>
-        </exec>
-        <exec executable="${mx.cmd}" dir="${sdk.dir}">
-            <arg value="clean"/>
-        </exec>
-    </target>
-
     <target name="eclipseformat">
       <pathconvert pathsep=" " property="javafiles">
         <fileset dir="${src.dir}">
@@ -83,24 +71,7 @@
       </exec>
     </target>
     
-    <target name="check-graal-available">
-        <available file="graal/.git" property="graal.present"/>
-    </target>
-    <target name="graal-repo" depends="check-graal-available"
-            unless="graal.present">
-      <exec executable="${basedir}/.graal-git-repo">
-        <arg value="checkout" />
-      </exec>
-    </target>
-
-    <target name="graal" depends="graal-repo">
-        <exec executable="${mx.cmd}" dir="${truffle.dir}" failonerror="true">
-            <arg value="build"/>
-            <arg value="--no-native"/>
-        </exec>
-    </target>
-
-    <target name="libs-junit">
+    <target name="libs">
       <mkdir dir="${lib.dir}" />
     	<get src="https://repo1.maven.org/maven2/junit/junit/${junit.version}/junit-${junit.version}.jar"
             usetimestamp="true"
@@ -110,9 +81,6 @@
             dest="${lib.dir}/hamcrest-core-1.3.jar" />
     </target>
     
-    <target name="libs" depends="graal,libs-junit">
-    </target>
-
     <target name="coverage-jars">
         <mkdir dir="${lib.dir}" />
         <get src="${mvn.url}/org/jacoco/org.jacoco.ant/${jacoco.version}/org.jacoco.ant-${jacoco.version}-nodeps.jar"
