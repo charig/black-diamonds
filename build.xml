@@ -6,11 +6,10 @@
     <property name="src_gen.dir"    location="src_gen"/>
     <property name="test.dir"       value="tests"/>
     <property name="lib.dir"        value="libs"/>
-	<property name="graallib.dir"   location="/home/guido/.local/share/graalvm-ee-java11-19.3.0/lib"/>
-	<property name="truffle.dir"    location="${graallib.dir}/truffle" />
-	<property name="junit.version"  value="4.12" />
+	<property name="truffle.dir"    location="${graal.dir}/truffle/mxbuild/dists" />
+    <property name="sdk.dir"        location="${graal.dir}/sdk/mxbuild/dists/jdk11" />
+    <property name="junit.version"  value="4.12" />
     <property name="jacoco.version" value="0.8.0" />
-
     <property name="checkstyle.version" value="8.11" />
     <property name="mvn.url"           value="https://maven-central.storage.googleapis.com/repos/central/data" />  <!-- https://repo1.maven.org/maven2 gives 403 on Travis CI -->
     
@@ -25,9 +24,9 @@
     <path id="project.classpath">
         <pathelement location="${classes.dir}" />
         <pathelement location="${test.dir}" />
-        <pathelement location="${truffle.dir}/truffle-dsl-processor.jar" />
-        <pathelement location="${truffle.dir}/truffle-api.jar" />
-        <pathelement location="${lib.dir}/graal-sdk.jar" />
+        <pathelement location="${truffle.dir}/jdk9/truffle-dsl-processor.jar" />
+        <pathelement location="${truffle.dir}/jdk11/truffle-api.jar" />
+        <pathelement location="${sdk.dir}/graal-sdk.jar" />
         <pathelement location="${lib.dir}/junit-${junit.version}.jar" />
         <pathelement location="${lib.dir}/hamcrest-core-1.3.jar" />
     </path>
@@ -78,9 +77,6 @@
     	<get src="https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
             usetimestamp="true"
             dest="${lib.dir}/hamcrest-core-1.3.jar" />
-        <get src="https://repo1.maven.org/maven2/org/graalvm/sdk/graal-sdk/19.3.0/graal-sdk-19.3.0.jar" 
-            usetimestamp="true" 
-            dest="${lib.dir}/graal-sdk.jar" />
     </target>
     
     <target name="coverage-jars">
