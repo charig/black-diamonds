@@ -6,9 +6,7 @@
     <property name="src_gen.dir"    location="src_gen"/>
     <property name="test.dir"       value="tests"/>
     <property name="lib.dir"        value="libs"/>
-	<property name="truffle.dir"    location="${graal.dir}/truffle/mxbuild/dists" />
-    <property name="sdk.dir"        location="${graal.dir}/sdk/mxbuild/dists/jdk11" />
-    <property name="junit.version"  value="4.12" />
+	<property name="junit.version"  value="4.12" />
     <property name="jacoco.version" value="0.8.0" />
     <property name="checkstyle.version" value="8.11" />
     <property name="mvn.url"           value="https://maven-central.storage.googleapis.com/repos/central/data" />  <!-- https://repo1.maven.org/maven2 gives 403 on Travis CI -->
@@ -21,11 +19,15 @@
     <property name="build.dir"   location="build"/>
     <property name="classes.dir" location="${build.dir}/classes"/>
 
-    <path id="project.classpath">
+    <echo>Truffle api: ${truffle.api.path}</echo>
+	<echo>Truffle dsl: ${truffle.dsl.path}</echo>
+	<echo>sdk: ${sdk.dir}</echo>
+	
+	<path id="project.classpath">
         <pathelement location="${classes.dir}" />
         <pathelement location="${test.dir}" />
-        <pathelement location="${truffle.dir}/jdk9/truffle-dsl-processor.jar" />
-        <pathelement location="${truffle.dir}/jdk11/truffle-api.jar" />
+        <pathelement location="${truffle.api.path}" />
+    	<pathelement location="${truffle.dsl.path}" />
         <pathelement location="${sdk.dir}/graal-sdk.jar" />
         <pathelement location="${lib.dir}/junit-${junit.version}.jar" />
         <pathelement location="${lib.dir}/hamcrest-core-1.3.jar" />
@@ -126,6 +128,8 @@
           <compilerarg line="-Xlint:all" />
         </javac>
         <javac includeantruntime="false" srcdir="${test.dir}" destdir="${classes.dir}" debug="true">
+          <compilerarg line="-s ${src_gen.dir}" />
+          <compilerarg line="-s ${classes.dir}" />
           <classpath refid="project.classpath" />
         </javac>
     </target>
